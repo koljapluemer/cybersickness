@@ -186,7 +186,7 @@ AFRAME.registerComponent('horizon-hud', {
       .set(0, 1, 0)
       .applyQuaternion(this.cameraQuaternion.invert());
 
-    this.el.object3D.rotation.z = Math.atan2(
+    this.el.object3D.rotation.z = -Math.atan2(
       this.worldUpInCameraSpace.x,
       this.worldUpInCameraSpace.y,
     );
