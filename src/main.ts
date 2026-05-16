@@ -155,7 +155,7 @@ app.innerHTML = `
     embedded
     renderer="antialias: true; colorManagement: true"
     background="color: #dcecf8"
-    vr-mode-ui="enabled: false"
+    vr-mode-ui="enabled: true"
   >
     <a-assets>
       <a-asset-item id="mountain-landscape" src="/mountains/scene.gltf"></a-asset-item>
