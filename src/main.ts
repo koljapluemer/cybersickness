@@ -22,6 +22,7 @@ type TourFlightData = {
   };
   rotationY: number;
   lookAhead: number;
+  pitch: number;
 };
 
 type TourFlightComponent = Component<TourFlightData> & {
@@ -102,10 +103,11 @@ async function loadTourPath(component: TourFlightComponent): Promise<void> {
 AFRAME.registerComponent('tour-flight', {
   schema: {
     src: { type: 'string', default: '/tour-path.json' },
-    scale: { type: 'number', default: 16 },
+    scale: { type: 'number', default: 220 },
     offset: { type: 'vec3', default: { x: 0, y: 2.7, z: 0 } },
     rotationY: { type: 'number', default: 18 },
     lookAhead: { type: 'number', default: 1.2 },
+    pitch: { type: 'number', default: 30 },
   },
 
   init(this: TourFlightComponent) {
@@ -141,6 +143,8 @@ AFRAME.registerComponent('tour-flight', {
 
     this.el.object3D.position.copy(this.worldPosition);
     this.el.object3D.lookAt(this.lookTarget);
+    this.el.object3D.rotateY(Math.PI);
+    this.el.object3D.rotateX(-AFRAME.THREE.MathUtils.degToRad(this.data.pitch));
   },
 });
 
@@ -171,14 +175,14 @@ app.innerHTML = `
     <a-entity
       gltf-model="#mountain-landscape"
       position="0 2.7 0"
-      scale="16 16 16"
+      scale="220 220 220"
       rotation="0 18 0"
     ></a-entity>
 
-    <a-entity tour-flight="src: /tour-path.json; scale: 16; offset: 0 2.7 0; rotationY: 18">
+    <a-entity tour-flight="src: /tour-path.json; scale: 220; offset: 0 2.7 0; rotationY: 18; pitch: 30">
       <a-camera
         fov="60"
-        rotation="-30 180 0"
+        position="0 0 0"
         look-controls-enabled="false"
         wasd-controls-enabled="false"
       ></a-camera>
