@@ -10,10 +10,15 @@ html {
   height: 100%;
   overflow: hidden;
   font-family: system-ui, sans-serif;
-  background: #ffffff;
+  background: #dcecf8;
 }
 
 #app {
+  width: 100%;
+  height: 100%;
+}
+
+a-scene {
   width: 100%;
   height: 100%;
 }
