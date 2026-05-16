@@ -35,6 +35,15 @@ type TourFlightComponent = Component<TourFlightData> & {
   rotationEuler: InstanceType<typeof AFRAME.THREE.Euler>;
 };
 
+type HorizonHudData = {
+  enabled: boolean;
+};
+
+type HorizonHudComponent = Component<HorizonHudData> & {
+  cameraQuaternion: InstanceType<typeof AFRAME.THREE.Quaternion>;
+  worldUpInCameraSpace: InstanceType<typeof AFRAME.THREE.Vector3>;
+};
+
 function samplePath(path: TourPoint[], t: number): [number, number, number] {
   if (path.length === 0) {
     return [0, 0, 0];
@@ -148,6 +157,42 @@ AFRAME.registerComponent('tour-flight', {
   },
 });
 
+AFRAME.registerComponent('horizon-hud', {
+  schema: {
+    enabled: { type: 'boolean', default: true },
+  },
+
+  init(this: HorizonHudComponent) {
+    this.cameraQuaternion = new AFRAME.THREE.Quaternion();
+    this.worldUpInCameraSpace = new AFRAME.THREE.Vector3();
+  },
+
+  tick(this: HorizonHudComponent) {
+    if (!this.data.enabled) {
+      this.el.object3D.rotation.z = 0;
+      return;
+    }
+
+    const cameraObject = this.el.object3D.parent;
+
+    if (!cameraObject) {
+      return;
+    }
+
+    cameraObject.getWorldQuaternion(this.cameraQuaternion);
+
+    // Project world up into camera space so the HUD can cancel head roll.
+    this.worldUpInCameraSpace
+      .set(0, 1, 0)
+      .applyQuaternion(this.cameraQuaternion.invert());
+
+    this.el.object3D.rotation.z = Math.atan2(
+      this.worldUpInCameraSpace.x,
+      this.worldUpInCameraSpace.y,
+    );
+  },
+});
+
 const app = document.querySelector<HTMLDivElement>('#app');
 
 if (!app) {
@@ -185,7 +230,14 @@ app.innerHTML = `
         position="0 0 0"
         look-controls-enabled="false"
         wasd-controls-enabled="false"
-      ></a-camera>
+      >
+        <a-entity
+          horizon-hud
+          geometry="primitive: plane; width: 0.16; height: 0.16"
+          material="shader: flat; color: #123d7a; opacity: 0.92; transparent: true; depthTest: false"
+          position="0 0 -0.7"
+        ></a-entity>
+      </a-camera>
     </a-entity>
   </a-scene>
 `;
