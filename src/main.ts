@@ -281,8 +281,7 @@ AFRAME.registerComponent('compass-hud', {
       this.initialYaw = yaw;
     }
 
-    // Bar points toward initial heading ("north"); yaw left rotates bar right.
-    this.el.object3D.rotation.z = -(yaw - this.initialYaw);
+    this.el.object3D.rotation.z = yaw - this.initialYaw;
   },
 });
 
@@ -361,7 +360,7 @@ app.innerHTML = `
         look-controls-enabled="false"
         wasd-controls-enabled="false"
       >
-        <a-entity position="0 0 -0.7">
+        <a-entity position="0 0 -1">
           <a-entity
             geometry="primitive: ring; radiusInner: 0.245; radiusOuter: 0.256; segmentsTheta: 128"
             material="shader: flat; color: #123d7a; opacity: 0.25; transparent: true; depthTest: false"
@@ -373,7 +372,7 @@ app.innerHTML = `
           ></a-entity>
         </a-entity>
 
-        <a-entity position="0 -0.46 -0.7" rotation="-80 0 0">
+        <a-entity position="0 -0.46 -.75" rotation="-90 0 0">
           <a-entity
             geometry="primitive: ring; radiusInner: 0.354; radiusOuter: 0.370; segmentsTheta: 128"
             material="shader: flat; color: #123d7a; opacity: 0.25; transparent: true; depthTest: false"
@@ -385,7 +384,7 @@ app.innerHTML = `
           ></a-entity>
         </a-entity>
 
-        <a-entity position="0.40 0 -0.7" rotation="0 90 0">
+        <a-entity position="0.40 0 -0.5" rotation="0 90 0">
           <a-entity
             geometry="primitive: ring; radiusInner: 0.354; radiusOuter: 0.370; segmentsTheta: 128"
             material="shader: flat; color: #123d7a; opacity: 0.25; transparent: true; depthTest: false; side: double"
@@ -397,7 +396,7 @@ app.innerHTML = `
           ></a-entity>
         </a-entity>
 
-        <a-entity position="-0.40 0 -0.7" rotation="0 -90 0">
+        <a-entity position="-0.40 0 -0.5" rotation="0 -90 0">
           <a-entity
             geometry="primitive: ring; radiusInner: 0.354; radiusOuter: 0.370; segmentsTheta: 128"
             material="shader: flat; color: #123d7a; opacity: 0.25; transparent: true; depthTest: false; side: double"
