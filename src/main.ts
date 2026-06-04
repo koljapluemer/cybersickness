@@ -157,6 +157,34 @@ AFRAME.registerComponent('tour-flight', {
   },
 });
 
+AFRAME.registerShader('horizon-bar', {
+  schema: {
+    innerRadius: { type: 'number', default: 0.046 },
+    outerRadius: { type: 'number', default: 0.076 },
+    color: { type: 'color', default: '#123d7a' },
+    opacity: { type: 'number', default: 0.92 },
+  },
+  vertexShader: `
+    varying vec2 vLocalPos;
+    void main() {
+      vLocalPos = position.xy;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    varying vec2 vLocalPos;
+    uniform float innerRadius;
+    uniform float outerRadius;
+    uniform vec3 color;
+    uniform float opacity;
+    void main() {
+      float dist = length(vLocalPos);
+      if (dist < innerRadius || dist > outerRadius) discard;
+      gl_FragColor = vec4(color, opacity);
+    }
+  `,
+});
+
 AFRAME.registerComponent('horizon-hud', {
   schema: {
     enabled: { type: 'boolean', default: true },
@@ -173,7 +201,7 @@ AFRAME.registerComponent('horizon-hud', {
       return;
     }
 
-    const cameraObject = this.el.object3D.parent;
+    const cameraObject = this.el.sceneEl.camera;
 
     if (!cameraObject) {
       return;
@@ -231,12 +259,17 @@ app.innerHTML = `
         look-controls-enabled="false"
         wasd-controls-enabled="false"
       >
-        <a-entity
-          horizon-hud
-          geometry="primitive: plane; width: 0.16; height: 0.16"
-          material="shader: flat; color: #123d7a; opacity: 0.92; transparent: true; depthTest: false"
-          position="0 0 -0.7"
-        ></a-entity>
+        <a-entity position="0 0 -0.7">
+          <a-entity
+            geometry="primitive: ring; radiusInner: 0.354; radiusOuter: 0.370; segmentsTheta: 128"
+            material="shader: flat; color: #123d7a; opacity: 0.25; transparent: true; depthTest: false"
+          ></a-entity>
+          <a-entity
+            horizon-hud
+            geometry="primitive: plane; width: 0.76; height: 0.009"
+            material="shader: horizon-bar; innerRadius: 0.354; outerRadius: 0.370; color: #123d7a; opacity: 0.92; transparent: true; depthTest: false"
+          ></a-entity>
+        </a-entity>
       </a-camera>
     </a-entity>
   </a-scene>
