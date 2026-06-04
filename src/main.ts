@@ -44,6 +44,16 @@ type HorizonHudComponent = Component<HorizonHudData> & {
   worldUpInCameraSpace: InstanceType<typeof AFRAME.THREE.Vector3>;
 };
 
+type CompassHudData = {
+  enabled: boolean;
+};
+
+type CompassHudComponent = Component<CompassHudData> & {
+  cameraQuaternion: InstanceType<typeof AFRAME.THREE.Quaternion>;
+  forward: InstanceType<typeof AFRAME.THREE.Vector3>;
+  initialYaw: number | null;
+};
+
 function samplePath(path: TourPoint[], t: number): [number, number, number] {
   if (path.length === 0) {
     return [0, 0, 0];
@@ -227,6 +237,46 @@ AFRAME.registerComponent('horizon-hud', {
   },
 });
 
+AFRAME.registerComponent('compass-hud', {
+  schema: { enabled: { type: 'boolean', default: true } },
+
+  init(this: CompassHudComponent) {
+    this.cameraQuaternion = new AFRAME.THREE.Quaternion();
+    this.forward = new AFRAME.THREE.Vector3();
+    this.initialYaw = null;
+  },
+
+  tick(this: CompassHudComponent, time: number) {
+    if (!this.data.enabled) {
+      this.el.object3D.rotation.z = 0;
+      return;
+    }
+
+    if (!this.el.sceneEl?.is('vr-mode')) {
+      // Desktop validation: counter-clockwise spin to distinguish from roll indicator.
+      this.el.object3D.rotation.z = (time / 1000) * (Math.PI / 8);
+      return;
+    }
+
+    const cameraObject = this.el.sceneEl.camera;
+    if (!cameraObject) return;
+
+    cameraObject.getWorldQuaternion(this.cameraQuaternion);
+
+    this.forward.set(0, 0, -1).applyQuaternion(this.cameraQuaternion);
+    this.forward.y = 0;
+    this.forward.normalize();
+    const yaw = Math.atan2(this.forward.x, -this.forward.z);
+
+    if (this.initialYaw === null) {
+      this.initialYaw = yaw;
+    }
+
+    // Bar points toward initial heading ("north"); yaw left rotates bar right.
+    this.el.object3D.rotation.z = -(yaw - this.initialYaw);
+  },
+});
+
 const app = document.querySelector<HTMLDivElement>('#app');
 
 if (!app) {
@@ -272,6 +322,18 @@ app.innerHTML = `
           ></a-entity>
           <a-entity
             horizon-hud
+            geometry="primitive: plane; width: 0.76; height: 0.009"
+            material="shader: horizon-bar; innerRadius: 0.354; outerRadius: 0.370; color: #123d7a; opacity: 0.92; transparent: true; depthTest: false"
+          ></a-entity>
+        </a-entity>
+
+        <a-entity position="0 -0.46 -0.7" rotation="-80 0 0">
+          <a-entity
+            geometry="primitive: ring; radiusInner: 0.354; radiusOuter: 0.370; segmentsTheta: 128"
+            material="shader: flat; color: #123d7a; opacity: 0.25; transparent: true; depthTest: false"
+          ></a-entity>
+          <a-entity
+            compass-hud
             geometry="primitive: plane; width: 0.76; height: 0.009"
             material="shader: horizon-bar; innerRadius: 0.354; outerRadius: 0.370; color: #123d7a; opacity: 0.92; transparent: true; depthTest: false"
           ></a-entity>
