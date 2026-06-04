@@ -201,7 +201,7 @@ AFRAME.registerComponent('horizon-hud', {
       return;
     }
 
-    const cameraObject = this.el.sceneEl.camera;
+    const cameraObject = this.el.sceneEl?.camera;
 
     if (!cameraObject) {
       return;
