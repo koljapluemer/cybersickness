@@ -56,6 +56,7 @@ type CompassHudComponent = Component<CompassHudData> & {
 
 type PitchHudData = {
   enabled: boolean;
+  flip: boolean;
 };
 
 type PitchHudComponent = Component<PitchHudData> & {
@@ -286,7 +287,10 @@ AFRAME.registerComponent('compass-hud', {
 });
 
 AFRAME.registerComponent('pitch-hud', {
-  schema: { enabled: { type: 'boolean', default: true } },
+  schema: {
+    enabled: { type: 'boolean', default: true },
+    flip: { type: 'boolean', default: false },
+  },
 
   init(this: PitchHudComponent) {
     this.cameraQuaternion = new AFRAME.THREE.Quaternion();
@@ -314,11 +318,8 @@ AFRAME.registerComponent('pitch-hud', {
       .set(0, 1, 0)
       .applyQuaternion(this.cameraQuaternion.invert());
 
-    // ZY plane drift of world-up = pitch angle.
-    this.el.object3D.rotation.z = Math.atan2(
-      this.worldUpInCameraSpace.z,
-      this.worldUpInCameraSpace.y,
-    );
+    const pitch = Math.atan2(this.worldUpInCameraSpace.z, this.worldUpInCameraSpace.y);
+    this.el.object3D.rotation.z = this.data.flip ? -pitch : pitch;
   },
 });
 
@@ -402,7 +403,7 @@ app.innerHTML = `
             material="shader: flat; color: #123d7a; opacity: 0.25; transparent: true; depthTest: false; side: double"
           ></a-entity>
           <a-entity
-            pitch-hud
+            pitch-hud="flip: true"
             geometry="primitive: plane; width: 0.76; height: 0.009"
             material="shader: horizon-bar; innerRadius: 0.354; outerRadius: 0.370; color: #123d7a; opacity: 0.92; transparent: true; depthTest: false; side: double"
           ></a-entity>
