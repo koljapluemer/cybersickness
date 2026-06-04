@@ -159,10 +159,10 @@ AFRAME.registerComponent('tour-flight', {
 
 AFRAME.registerShader('horizon-bar', {
   schema: {
-    innerRadius: { type: 'number', default: 0.046 },
-    outerRadius: { type: 'number', default: 0.076 },
-    color: { type: 'color', default: '#123d7a' },
-    opacity: { type: 'number', default: 0.92 },
+    innerRadius: { type: 'number', default: 0.046, is: 'uniform' },
+    outerRadius: { type: 'number', default: 0.076, is: 'uniform' },
+    color: { type: 'color', default: '#123d7a', is: 'uniform' },
+    opacity: { type: 'number', default: 0.92, is: 'uniform' },
   },
   vertexShader: `
     varying vec2 vLocalPos;
@@ -195,13 +195,19 @@ AFRAME.registerComponent('horizon-hud', {
     this.worldUpInCameraSpace = new AFRAME.THREE.Vector3();
   },
 
-  tick(this: HorizonHudComponent) {
+  tick(this: HorizonHudComponent, time: number) {
     if (!this.data.enabled) {
       this.el.object3D.rotation.z = 0;
       return;
     }
 
-    const cameraObject = this.el.sceneEl?.camera;
+    if (!this.el.sceneEl?.is('vr-mode')) {
+      // Desktop: slow clockwise spin for visual validation (~16 s per revolution).
+      this.el.object3D.rotation.z = -(time / 1000) * (Math.PI / 8);
+      return;
+    }
+
+    const cameraObject = this.el.sceneEl.camera;
 
     if (!cameraObject) {
       return;
