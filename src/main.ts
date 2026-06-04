@@ -270,8 +270,7 @@ AFRAME.registerComponent('compass-hud', {
     const cameraObject = this.el.sceneEl.camera;
     if (!cameraObject) return;
 
-    // Local quaternion only: WebXR writes head tracking here; parent holds flight-path rotation.
-    this.cameraQuaternion.copy(cameraObject.quaternion);
+    cameraObject.getWorldQuaternion(this.cameraQuaternion);
 
     this.forward.set(0, 0, -1).applyQuaternion(this.cameraQuaternion);
     this.forward.y = 0;
