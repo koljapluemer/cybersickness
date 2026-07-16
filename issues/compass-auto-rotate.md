@@ -1,0 +1,1 @@
+Compass still rotates with camera even though head is held still.
